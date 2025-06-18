@@ -1,8 +1,8 @@
 services:
   motis-web-deploy:
-    image: ghcr.io/motis-project/motis-web-deploy:latest
+    image: ghcr.io/motis-project/motis-web-deploy:master
     environment:
-      - ORIGIN=http://run.motis-project.de
+      - ORIGIN=https://run.motis-project.de
     volumes:
       - ./instances:/instances
       - ./motis:/motis
