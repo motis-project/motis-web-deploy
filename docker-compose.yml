@@ -3,6 +3,9 @@ services:
     image: ghcr.io/motis-project/motis-web-deploy:master
     environment:
       - ORIGIN=https://run.motis-project.de
+      - BODY_SIZE_LIMIT=Infinity
+      - MOTIS_FOLDER=/motis
+      - INSTANCE_FOLDER=/instances
     volumes:
       - ./instances:/instances
       - ./motis:/motis

@@ -5,16 +5,11 @@ import portfinder from 'portfinder';
 import path from 'path';
 import { exec, spawn } from 'child_process';
 import util from 'util';
+import { env } from '$env/dynamic/private';
 
 const execPromise = util.promisify(exec);
 
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-import { motisInstances } from '$lib/instances';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
+const motisInstances = new Map<number, ReturnType<typeof spawn>>();
 
 export const load: PageServerLoad = async () => {
   return { ports: motisInstances.keys().toArray() };
@@ -32,7 +27,7 @@ export const actions = {
     if (motisProcess) {
       motisProcess.kill('SIGKILL');
       motisInstances.delete(Number(port));
-      await rm(`./instances/${port}`, { recursive: true, force: true });
+      await rm(`./${env.INSTANCE_FOLDER}/${port}`, { recursive: true, force: true });
       console.log(`Stopped and removed instance on port ${port}`);
       return { stop: true, port: Number(port) };
     } else {
@@ -52,12 +47,12 @@ export const actions = {
     }
 
     let port = await portfinder.getPortPromise({ port: 8080 });
-    while (existsSync(`./instances/${port}`)) {
+    while (existsSync(`./${env.INSTANCE_FOLDER}/${port}`)) {
       port = await portfinder.getPortPromise({ port: port + 1 });
     }
 
-    const templateFolder = path.normalize(`${__dirname}/../../motis/${zone}`);
-    const instanceFolder = `./instances/${port}`;
+    const templateFolder = path.normalize(`${env.MOTIS_FOLDER}/${zone}`);
+    const instanceFolder = `./${env.INSTANCE_FOLDER}/${port}`;
 
     await rm(instanceFolder, { recursive: true, force: true });
     await mkdir(`${instanceFolder}/data`, { recursive: true });
@@ -78,7 +73,7 @@ timetable:
 
     await execPromise(`./motis/motis/motis import -c ${instanceFolder}/config.yml -d ${instanceFolder}/data`);
 
-    const motisProcess = spawn('./motis/motis/motis', ['server', '-d', `${instanceFolder}/data`]);
+    const motisProcess = spawn(`${env.MOTIS_FOLDER}/motis/motis`, ['server', '-d', `${instanceFolder}/data`]);
     motisProcess.stdout.on('data', (data) => {
       console.log(`stdout[${port}]: ${data}`);
     });
