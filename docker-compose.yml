@@ -1,0 +1,11 @@
+services:
+  motis-web-deploy:
+    image: ghcr.io/motis-project/motis-web-deploy:latest
+    environment:
+      - ORIGIN=http://run.motis-project.de
+    volumes:
+      - ./instances:/instances
+      - ./motis:/motis
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
