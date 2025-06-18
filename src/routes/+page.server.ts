@@ -21,7 +21,27 @@ export const load: PageServerLoad = async () => {
 }
 
 export const actions = {
-  default: async ({ request }) => {
+  stop: async ({ request }) => {
+    const data = await request.formData();
+    const port = data.get('port');
+    if (!port || typeof port != 'string' || !motisInstances.has(Number(port))) {
+      console.error('Invalid port provided', data);
+      return { error: 'Invalid port provided' };
+    }
+    const motisProcess = motisInstances.get(Number(port));
+    if (motisProcess) {
+      motisProcess.kill('SIGKILL');
+      motisInstances.delete(Number(port));
+      await rm(`./instances/${port}`, { recursive: true, force: true });
+      console.log(`Stopped and removed instance on port ${port}`);
+      return { stop: true, port: Number(port) };
+    } else {
+      console.error(`No instance found for port ${port}`);
+      return { error: `No instance found for port ${port}` };
+    }
+  },
+
+  create: async ({ request }) => {
     const data = await request.formData();
     const gtfs = data.get('gtfs');
     const zone = data.get('zone');

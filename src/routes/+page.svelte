@@ -26,7 +26,14 @@
 			<Card.Content>
 				<ul class="list-inside list-disc">
 					{#each data.ports as port}
-						<li><a href="instances/{port}/" target="_blank">{port}</a></li>
+						<form method="post" action="?/stop">
+							<li>
+								{port}:
+								<a href="instances/{port}/" target="_blank" class="font-bold underline">Try it!</a>
+								<input type="hidden" name="port" value={port} />
+								<Button type="submit" class="ml-2" variant="destructive">Stop</Button>
+							</li>
+						</form>
 					{/each}
 				</ul>
 			</Card.Content>
@@ -46,7 +53,7 @@
 					{/if}
 
 					{#if form.success}
-						<Alert.Root class="mb-4" variant="success">
+						<Alert.Root class="mb-4">
 							<Alert.Title>New MOTIS Instance created!</Alert.Title>
 							<Alert.Description>
 								Your new Instance is now online!<br />
@@ -61,7 +68,12 @@
 					{/if}
 				{/if}
 
-				<form method="post" enctype="multipart/form-data" class="flex flex-col gap-6">
+				<form
+					method="post"
+					enctype="multipart/form-data"
+					class="flex flex-col gap-6"
+					action="?/create"
+				>
 					<div class="flex flex-col gap-2">
 						<Label for="region">Region</Label>
 						<div class="relative w-full">
