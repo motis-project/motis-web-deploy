@@ -27,7 +27,7 @@ export const actions = {
     if (motisProcess) {
       motisProcess.kill('SIGKILL');
       motisInstances.delete(Number(port));
-      await rm(`./${env.INSTANCE_FOLDER}/${port}`, { recursive: true, force: true });
+      await rm(`${env.INSTANCE_FOLDER}/${port}`, { recursive: true, force: true });
       console.log(`Stopped and removed instance on port ${port}`);
       return { stop: true, port: Number(port) };
     } else {
@@ -47,12 +47,12 @@ export const actions = {
     }
 
     let port = await portfinder.getPortPromise({ port: 8080 });
-    while (existsSync(`./${env.INSTANCE_FOLDER}/${port}`)) {
+    while (existsSync(`${env.INSTANCE_FOLDER}/${port}`)) {
       port = await portfinder.getPortPromise({ port: port + 1 });
     }
 
     const templateFolder = path.normalize(`${env.MOTIS_FOLDER}/${zone}`);
-    const instanceFolder = `./${env.INSTANCE_FOLDER}/${port}`;
+    const instanceFolder = `${env.INSTANCE_FOLDER}/${port}`;
 
     await rm(instanceFolder, { recursive: true, force: true });
     await mkdir(`${instanceFolder}/data`, { recursive: true });
@@ -71,7 +71,7 @@ timetable:
     await symlink(`${templateFolder}/data/osr`, `${instanceFolder}/data/osr`, 'dir');
     await symlink(`${templateFolder}/data/tiles`, `${instanceFolder}/data/tiles`, 'dir');
 
-    await execPromise(`./motis/motis/motis import -c ${instanceFolder}/config.yml -d ${instanceFolder}/data`);
+    await execPromise(`${env.MOTIS_FOLDER}/motis/motis import -c ${instanceFolder}/config.yml -d ${instanceFolder}/data`);
 
     const motisProcess = spawn(`${env.MOTIS_FOLDER}/motis/motis`, ['server', '-d', `${instanceFolder}/data`]);
     motisProcess.stdout.on('data', (data) => {
