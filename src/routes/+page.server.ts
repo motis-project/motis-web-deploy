@@ -67,7 +67,30 @@ timetable:
     await writeFile(`${instanceFolder}/gtfs.zip`, gtfs.stream());
 
     await cp(`${templateFolder}/data/meta`, `${instanceFolder}/data/meta`, { recursive: true });
-    await symlink(`${templateFolder}/data/adr`, `${instanceFolder}/data/adr`, 'dir');
+    rm(`${instanceFolder}/data/meta/adr_extend.json`, { force: true });
+
+    const adrFiles = [
+      "inner_rings_data.bin",
+      "inner_rings_idx_0.bin",
+      "inner_rings_idx_1.bin",
+      "inner_rings_idx_2.bin",
+      "outer_rings_data.bin",
+      "outer_rings_idx_0.bin",
+      "outer_rings_idx_1.bin",
+      "rtree_data.bin",
+      "rtree_meta.bin",
+      "street_segments_data.bin",
+      "street_segments_idx_0.bin",
+      "street_segments_idx_1.bin",
+      "t.bin"
+    ];
+    await mkdir(`${instanceFolder}/data/adr`, { recursive: true });
+    adrFiles.forEach(async (file) => {
+      const srcPath = path.join(templateFolder, 'data', 'adr', file);
+      const destPath = path.join(instanceFolder, 'data', 'adr', file);
+      await symlink(srcPath, destPath, 'file');
+    });
+
     await symlink(`${templateFolder}/data/osr`, `${instanceFolder}/data/osr`, 'dir');
     await symlink(`${templateFolder}/data/tiles`, `${instanceFolder}/data/tiles`, 'dir');
 
