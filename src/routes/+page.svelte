@@ -24,7 +24,7 @@
 				<Card.Description>These instances are already running.</Card.Description>
 			</Card.Header>
 			<Card.Content>
-				<ul class="list-inside list-disc">
+				<ul class="flex list-inside list-disc flex-col gap-2">
 					{#each data.ports as port}
 						<form method="post" action="?/stop">
 							<li>

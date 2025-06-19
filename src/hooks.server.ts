@@ -1,4 +1,23 @@
 import type { Handle } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
+import { startInstance } from '$lib/instances';
+import fs from 'fs/promises';
+
+(async () => {
+  try {
+    if (!env.INSTANCE_FOLDER) {
+      throw new Error('INSTANCE_FOLDER environment variable is not set.');
+    }
+    const entries = await fs.readdir(env.INSTANCE_FOLDER, { withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.isDirectory() && /^\d+$/.test(entry.name)) {
+        await startInstance(Number(entry.name));
+      }
+    }
+  } catch (err) {
+    console.error('Error reading INSTANCE_FOLDER:', err);
+  }
+})();
 
 export const handle: Handle = async ({ event, resolve }) => {
   const regex = /^\/instances\/(\d+)\/(.*)$/;

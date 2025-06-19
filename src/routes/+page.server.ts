@@ -6,10 +6,9 @@ import path from 'path';
 import { exec, spawn } from 'child_process';
 import util from 'util';
 import { env } from '$env/dynamic/private';
+import { motisInstances, startInstance } from '$lib/instances';
 
 const execPromise = util.promisify(exec);
-
-const motisInstances = new Map<number, ReturnType<typeof spawn>>();
 
 export const load: PageServerLoad = async () => {
   return { ports: motisInstances.keys().toArray() };
@@ -96,14 +95,7 @@ timetable:
 
     await execPromise(`${env.MOTIS_FOLDER}/motis/motis import -c ${instanceFolder}/config.yml -d ${instanceFolder}/data`);
 
-    const motisProcess = spawn(`${env.MOTIS_FOLDER}/motis/motis`, ['server', '-d', `${instanceFolder}/data`]);
-    motisProcess.stdout.on('data', (data) => {
-      console.log(`stdout[${port}]: ${data}`);
-    });
-    motisProcess.stderr.on('data', (data) => {
-      console.log(`stderr[${port}]: ${data}`);
-    });
-    motisInstances.set(port, motisProcess);
+    startInstance(port);
 
     return { success: true, port }
   }
